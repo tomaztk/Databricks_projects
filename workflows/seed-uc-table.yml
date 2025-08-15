@@ -1,0 +1,40 @@
+name: Seed Unity Catalog table
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Clone the repo (so we run the SQL from this repository)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2) Set up Python (for the Databricks SQL CLI)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3) Install the Databricks SQL CLI
+      - name: Install Databricks SQL CLI
+        run: pip install databricks-sql-cli
+
+      # 4) Create the CLI settings file (CLI expects it to exist)
+      - name: Prepare dbsqlcli settings file
+        run: |
+          mkdir -p ~/.dbsqlcli
+          echo "[credentials]" > ~/.dbsqlcli/dbsqlclirc
+
+      # 5) Run the SQL file against your SQL Warehouse
+      - name: Execute SQL on Databricks
+        env:
+          DBSQLCLI_HOST_NAME: ${{ secrets.DATABRICKS_HOST }}
+          DBSQLCLI_HTTP_PATH: ${{ secrets.DATABRICKS_WAREHOUSE_HTTP_PATH }}
+          DBSQLCLI_ACCESS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          dbsqlcli -e sql/seed_uc.sql --table-format ascii
