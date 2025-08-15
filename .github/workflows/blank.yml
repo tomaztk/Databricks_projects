@@ -1,4 +1,4 @@
-name: Seed Unity Catalog table
+name: Seed Unity Catalog table with hello
 
 on:
   workflow_dispatch:
