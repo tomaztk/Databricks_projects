@@ -1,2 +1,2 @@
-# Databricks_projects
+# Databricks projects
 Projects for Azure Databricks
